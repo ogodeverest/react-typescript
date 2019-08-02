@@ -1,26 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
+import routes from "./routing/routes";
+import { Transition, TransitionGroup } from "react-transition-group";
+import { play, exit } from "./animations/routerAnimations";
+import "./App.css";
+
+const routeComponents = routes.map(({ path, component }, key) => (
+  <Route exact path={path} component={component} key={key} />
+));
 
 const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Route
+        render={({ location }) => {
+          const { pathname, key } = location;
+
+          return (
+            <TransitionGroup component={null}>
+              <Transition
+                key={key}
+                appear={true}
+                onEnter={(node, appears) => play(pathname, node, appears)}
+                onExit={(node: HTMLElement) => exit(node)}
+                timeout={{ enter: 750, exit: 150 }}
+              >
+                <Switch location={location}>{routeComponents}</Switch>
+              </Transition>
+            </TransitionGroup>
+          );
+        }}
+      />
+    </BrowserRouter>
   );
-}
+};
 
 export default App;
